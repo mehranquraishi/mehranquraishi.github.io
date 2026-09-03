@@ -23,6 +23,7 @@
     --ochre:#A9640F;
     --ochre-soft:#F6EBDB;
     --screen-h:830px;
+    --vpad:20px;
     --display:"Bricolage Grotesque",system-ui,sans-serif;
   }
 
@@ -183,7 +184,8 @@
   /* ============ scroll region ============ */
   .views{
     flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
-    padding:0 20px 28px;
+    padding:0 var(--vpad) 28px;
+    position:relative;
     scrollbar-width:thin;scrollbar-color:#C9D2C7 transparent;
   }
   .views::-webkit-scrollbar{width:5px}
@@ -191,6 +193,13 @@
 
   .view{display:none}
   .view.is-active{display:block}
+  .view.is-peek{
+    display:block;position:absolute;top:0;
+    left:var(--vpad);right:var(--vpad);
+    animation:none !important;
+  }
+  .view.is-settling{transition:transform .28s cubic-bezier(.22,1,.36,1)}
+  .views.is-dragging .view{animation:none !important}
 
   /* ============ motion ============ */
   @media (prefers-reduced-motion:no-preference){
@@ -265,9 +274,9 @@
     }
 
     /* screen transitions — forward slides in from the right, back from the left */
-    .view.is-active{animation:fadeUp .3s cubic-bezier(.22,1,.36,1) both}
-    .views.dir-fwd  .view.is-active{animation:slideFromRight .34s cubic-bezier(.22,1,.36,1) both}
-    .views.dir-back .view.is-active{animation:slideFromLeft .34s cubic-bezier(.22,1,.36,1) both}
+    .view.anim-in{animation:fadeUp .3s cubic-bezier(.22,1,.36,1) backwards}
+    .views.dir-fwd  .view.anim-in{animation:slideFromRight .34s cubic-bezier(.22,1,.36,1) backwards}
+    .views.dir-back .view.anim-in{animation:slideFromLeft .34s cubic-bezier(.22,1,.36,1) backwards}
 
     /* app rows reveal as they scroll into view */
     .approw{opacity:0;transform:translateY(18px);transition:opacity .5s ease, transform .5s cubic-bezier(.22,1,.36,1)}
@@ -597,7 +606,8 @@
     .screen{width:100%;height:100dvh;border-radius:0}
     .statusbar{display:none}
     .appbar{padding-top:calc(14px + env(safe-area-inset-top))}
-    .views{padding:0 18px 24px}
+    :root{--vpad:18px}
+    .views{padding:0 var(--vpad) 24px}
   }
 
   @media (prefers-reduced-motion:reduce){
@@ -1309,12 +1319,25 @@ views.addEventListener('scroll', function(){
   }
 });
 
-function show(name, dir){
+var TABS = ['home','apps','experience','skills','contact'];
+
+function show(name, dir, skipAnim){
+  // tapping a tab further right slides in from the right, and vice versa
+  if (dir === undefined){
+    var a = TABS.indexOf(lastTab), b = TABS.indexOf(name);
+    dir = (a > -1 && b > -1 && a !== b) ? (b > a ? 'fwd' : 'back') : null;
+  }
   views.className = 'views' + (dir ? ' dir-' + dir : '');
 
   var all = document.querySelectorAll('.view');
   for (var i = 0; i < all.length; i++){
-    all[i].classList.toggle('is-active', all[i].dataset.view === name);
+    var on = all[i].dataset.view === name;
+    all[i].classList.toggle('is-active', on);
+    all[i].classList.remove('anim-in');
+    if (on && !skipAnim){
+      void all[i].offsetWidth;              // restart the animation cleanly
+      all[i].classList.add('anim-in');
+    }
   }
   views.scrollTop = 0;
   appbar.classList.remove('is-stuck');
@@ -1384,12 +1407,161 @@ document.addEventListener('click', function(e){
     return;
   }
   var goBtn = e.target.closest('[data-go]');
-  if (goBtn){ show(goBtn.dataset.go); return; }
+  if (goBtn){ pageTo(goBtn.dataset.go); return; }
   var appBtn = e.target.closest('[data-app]');
   if (appBtn){ openApp(appBtn.dataset.app); }
 });
 
 back.addEventListener('click', function(){ show(lastTab, 'back'); });
+
+/* ---------- finger paging, ViewPager style ---------- */
+var drag = { on:false, busy:false, x:0, y:0, dx:0, axis:null, w:0, peek:null, target:null, dir:null };
+
+function viewOf(name){ return document.querySelector('.view[data-view="' + name + '"]'); }
+function isDetail(){ return viewOf('detail').classList.contains('is-active'); }
+
+function endDrag(){
+  var cur = document.querySelector('.view.is-active');
+  [cur, drag.peek].forEach(function(el){
+    if (!el) return;
+    el.classList.remove('is-settling','is-peek');
+    el.style.transform = '';
+    el.style.top = '';
+  });
+  views.classList.remove('is-dragging');
+  drag.on = false; drag.busy = false; drag.peek = null; drag.target = null;
+}
+
+views.addEventListener('touchstart', function(e){
+  if (drag.busy || e.touches.length !== 1) return;
+  if (!screenEl.classList.contains('is-ready')) return;
+  drag.on = true; drag.axis = null; drag.dx = 0;
+  drag.x = e.touches[0].clientX;
+  drag.y = e.touches[0].clientY;
+  drag.w = views.clientWidth;
+}, { passive:true });
+
+views.addEventListener('touchmove', function(e){
+  if (!drag.on) return;
+  var x = e.touches[0].clientX, y = e.touches[0].clientY;
+  var adx = Math.abs(x - drag.x), ady = Math.abs(y - drag.y);
+
+  if (drag.axis === null){
+    if (adx < 9 && ady < 9) return;
+    drag.axis = adx > ady * 1.3 ? 'x' : 'y';
+    if (drag.axis !== 'x') return;
+
+    // work out which pane is coming in behind the finger
+    var right = (x - drag.x) < 0;
+    if (isDetail()){
+      drag.target = right ? null : lastTab;
+      drag.dir = 'back';
+    } else {
+      var i = TABS.indexOf(lastTab);
+      var j = right ? i + 1 : i - 1;
+      drag.target = (j >= 0 && j < TABS.length) ? TABS[j] : null;
+      drag.dir = right ? 'fwd' : 'back';
+    }
+    views.classList.add('is-dragging');
+    if (drag.target){
+      drag.peek = viewOf(drag.target);
+      drag.peek.classList.add('is-peek');
+      drag.peek.style.top = views.scrollTop + 'px';
+    }
+  }
+  if (drag.axis !== 'x') return;
+
+  e.preventDefault();
+  drag.dx = x - drag.x;
+  if (!drag.target) drag.dx *= 0.25;              // rubber band at the ends
+
+  var cur = document.querySelector('.view.is-active');
+  cur.style.transform = 'translateX(' + drag.dx + 'px)';
+  if (drag.peek){
+    var off = drag.dx + (drag.dx < 0 ? drag.w : -drag.w);
+    drag.peek.style.transform = 'translateX(' + off + 'px)';
+  }
+}, { passive:false });
+
+function releaseDrag(){
+  if (!drag.on) return;
+  if (drag.axis !== 'x'){ endDrag(); return; }
+
+  var cur = document.querySelector('.view.is-active');
+  var passed = drag.target && Math.abs(drag.dx) > drag.w * 0.22;
+  drag.busy = true;
+
+  cur.classList.add('is-settling');
+  if (drag.peek) drag.peek.classList.add('is-settling');
+
+  if (passed){
+    cur.style.transform = 'translateX(' + (drag.dx < 0 ? -drag.w : drag.w) + 'px)';
+    drag.peek.style.transform = 'translateX(0px)';
+  } else {
+    cur.style.transform = 'translateX(0px)';
+    if (drag.peek) drag.peek.style.transform =
+      'translateX(' + (drag.dx < 0 ? drag.w : -drag.w) + 'px)';
+  }
+
+  var goTo = passed ? drag.target : null;
+  var goDir = drag.dir;
+  if (goTo) setChrome(goTo);
+  setTimeout(function(){
+    endDrag();
+    if (goTo) show(goTo, goDir, true);   // already slid into place, don't replay it
+  }, 290);
+}
+
+views.addEventListener('touchend', releaseDrag);
+views.addEventListener('touchcancel', releaseDrag);
+
+/* app bar and nav update the moment you commit, not when the slide ends */
+function setChrome(name){
+  if (TABS.indexOf(name) < 0) return;
+  title.textContent = TITLES[name];
+  var btns = document.querySelectorAll('.navbtn');
+  for (var j = 0; j < btns.length; j++){
+    btns[j].classList.toggle('is-active', btns[j].dataset.go === name);
+  }
+  moveIndicator();
+}
+
+/* tapping a tab runs the same slide a finger swipe does: both panes move */
+function pageTo(name){
+  if (drag.busy) return;
+  var cur  = document.querySelector('.view.is-active');
+  var next = viewOf(name);
+  if (!cur || !next || cur === next) return;
+
+  var a = TABS.indexOf(lastTab), b = TABS.indexOf(name);
+  var dir = (a > -1 && b > -1 && a !== b) ? (b > a ? 'fwd' : 'back') : 'back';
+  var w = views.clientWidth;
+
+  drag.busy = true;
+  views.classList.add('is-dragging');
+  setChrome(name);
+
+  next.classList.add('is-peek');
+  next.style.top = views.scrollTop + 'px';
+  next.style.transform = 'translateX(' + (dir === 'fwd' ? w : -w) + 'px)';
+  void next.offsetWidth;                       // land the start position first
+
+  cur.classList.add('is-settling');
+  next.classList.add('is-settling');
+  cur.style.transform  = 'translateX(' + (dir === 'fwd' ? -w : w) + 'px)';
+  next.style.transform = 'translateX(0px)';
+
+  setTimeout(function(){
+    cur.classList.remove('is-settling');
+    cur.style.transform = '';
+    next.classList.remove('is-settling','is-peek');
+    next.style.transform = '';
+    next.style.top = '';
+    views.classList.remove('is-dragging');
+    drag.busy = false;
+    show(name, dir, true);                     // already in place, don't replay
+  }, 290);
+}
 
 var clock = document.getElementById('clock');
 
