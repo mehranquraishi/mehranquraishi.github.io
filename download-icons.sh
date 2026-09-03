@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Downloads the 13 Google Play icons into assets/icons/ so the site
+# Downloads the 14 Google Play icons into assets/icons/ so the site
 # serves them from your own domain instead of Google's CDN.
 # Run once from the folder that contains index.html:   bash download-icons.sh
 set -e
@@ -7,6 +7,8 @@ mkdir -p assets/icons
 
 curl -sSfL -o "assets/icons/memopad.png" "https://play-lh.googleusercontent.com/IBjRD8Ile4481Xx4qyVCXiWUEZdLCusQScRNIE8LdtEF00VDHvAOJAVPcGFsBfY4hv1xisC5RCFNIGm6-TRGH4g=s256"
 echo "  saved assets/icons/memopad.png"
+curl -sSfL -o "assets/icons/bloodsugar.png" "https://play-lh.googleusercontent.com/IcN-lcAaIS_dj5W9Cwxlz0SOJncmFYTjMLsRCcw8ivO_uT6gpfui1riPdNoTdHUrj1L-0XmbI4A-vfBVV6Ix=s256"
+echo "  saved assets/icons/bloodsugar.png"
 curl -sSfL -o "assets/icons/memomemo.png" "https://play-lh.googleusercontent.com/6OCpquSKCtVLqmIQxBSQTjBRxWg6hpnHhT-h-Rr40bz54TlzypGYZMxRMHaiqlw-k2zDg9g62lgRsABh1MNPQA=s256"
 echo "  saved assets/icons/memomemo.png"
 curl -sSfL -o "assets/icons/earthmap.png" "https://play-lh.googleusercontent.com/NTf4wxAAb4xJqhv8syfzJTvkYNjp2vi1f-c8FDt7rgCYH1mWYr88vBzfCEsJkv_zSefVV3qoJbJqlbDTPHpUzFo=s256"
@@ -33,4 +35,4 @@ curl -sSfL -o "assets/icons/pdftoolkit.png" "https://play-lh.googleusercontent.c
 echo "  saved assets/icons/pdftoolkit.png"
 
 echo
-echo "Done - 13 icons saved."
+echo "Done - 14 icons saved."
