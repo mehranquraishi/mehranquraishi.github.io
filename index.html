@@ -989,9 +989,11 @@
    load AND again on the first interaction, because Chrome discards entries
    added without user activation. */
 var exiting = false;
-function guard(){
-  try { history.pushState({ guard:1 }, '', location.href); } catch (e) {}
+var pushes  = 0;                    // history entries this app has added
+function pushEntry(state, url){
+  try { history.pushState(state, '', url); pushes++; } catch (e) {}
 }
+function guard(){ pushEntry({ guard:1 }, location.href); }
 guard();
 ['pointerdown','touchstart','keydown'].forEach(function(ev){
   document.addEventListener(ev, guard, { once:true, passive:true });
@@ -999,6 +1001,7 @@ guard();
 
 window.addEventListener('popstate', function(){
   if (exiting) return;
+  if (pushes > 0) pushes--;         // the back press consumed one
   var st = history.state;
   if (st && st.app){ openApp(st.app, true); return; }   // forward button
 
@@ -1496,7 +1499,7 @@ function show(name, dir, skipAnim){
 function openApp(id, fromHistory){
   var a = APPS.filter(function(x){ return x.id === id; })[0];
   if (!a) return;
-  if (!fromHistory) history.pushState({ app:id }, '', '#app/' + id);
+  if (!fromHistory) pushEntry({ app:id }, '#app/' + id);
 
   var html = '<div class="detail-head">' + tile(a, 152) +
     '<div><h3>' + a.name + '</h3><span class="status ' + pill(a) + '">' + label(a) + '</span></div></div>' +
@@ -1570,8 +1573,15 @@ document.getElementById('exitNo').addEventListener('click', closeExit);
 document.getElementById('exitYes').addEventListener('click', function(){
   closeExit();
   exiting = true;
-  history.go(-2);                              // past the sentinel and out
-  setTimeout(function(){ exiting = false; }, 600);
+
+  // step back past every entry we added, landing on whatever came before us
+  history.go(-(pushes + 1));
+
+  // nothing came before? close the tab, and blank it if the browser refuses
+  setTimeout(function(){
+    window.close();
+    setTimeout(function(){ location.replace('about:blank'); }, 150);
+  }, 400);
 });
 exitDialog.addEventListener('click', function(e){ if (e.target === exitDialog) closeExit(); });
 document.addEventListener('keydown', function(e){
