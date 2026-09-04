@@ -103,6 +103,35 @@
     position:relative;
   }
 
+  /* ============ exit dialog ============ */
+  .dialog-scrim{
+    position:absolute;inset:0;z-index:40;
+    display:grid;place-items:center;
+    background:rgba(10,18,13,.46);
+    padding:26px;
+  }
+  .dialog-scrim[hidden]{display:none}
+  .dialog{
+    width:100%;max-width:296px;
+    background:var(--surface);
+    border-radius:28px;
+    padding:24px 24px 12px;
+    box-shadow:0 26px 54px -20px rgba(0,0,0,.55);
+  }
+  .dialog h3{
+    font-family:var(--display);font-weight:700;
+    font-size:1.1875rem;letter-spacing:-.02em;margin:0 0 9px;
+  }
+  .dialog p{margin:0;font-size:.875rem;color:var(--ink-2)}
+  .dialog-actions{display:flex;justify-content:flex-end;gap:2px;margin-top:18px}
+  .dlg-btn{
+    background:none;border:0;cursor:pointer;font:inherit;
+    font-size:.875rem;font-weight:600;color:var(--accent);
+    padding:10px 18px;border-radius:999px;
+    transition:background .15s ease;
+  }
+  .dlg-btn:hover{background:var(--accent-soft)}
+
   /* ============ boot splash ============ */
   .boot{
     position:absolute;inset:0;z-index:30;
@@ -233,6 +262,11 @@
       50% {transform:translate3d(-2.5%,2%,0) scale(1.07)}
       100%{transform:translate3d(2%,-2.5%,0) scale(1.03)}
     }
+
+    @keyframes scrimIn{from{opacity:0}to{opacity:1}}
+    @keyframes dialogIn{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+    .dialog-scrim{animation:scrimIn .18s ease}
+    .dialog{animation:dialogIn .27s cubic-bezier(.34,1.4,.64,1)}
 
     .boot{animation:bootScreen 1.75s cubic-bezier(.4,0,.2,1) forwards}
     .boot img{animation:bootIcon 1.75s cubic-bezier(.4,0,.2,1) forwards}
@@ -929,6 +963,17 @@
         </button>
       </nav>
 
+      <div class="dialog-scrim" id="exitDialog" hidden>
+        <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="exitTitle">
+          <h3 id="exitTitle">Exit portfolio?</h3>
+          <p>Are you sure you want to leave?</p>
+          <div class="dialog-actions">
+            <button class="dlg-btn" id="exitNo">No</button>
+            <button class="dlg-btn" id="exitYes">Yes</button>
+          </div>
+        </div>
+      </div>
+
       <div class="boot" id="boot" aria-hidden="true">
         <img src="assets/mehran.jpg" alt="">
       </div>
@@ -1318,6 +1363,7 @@ setTimeout(function(){
   moveIndicator();
   reveal();
 
+  guard();
   var deep = appFromHash();                // support links like /#app/alldocs
   if (deep) openApp(deep, true);
 }, reduced ? 0 : 1200);
@@ -1484,10 +1530,33 @@ function appFromHash(){
   return (m && APPS.some(function(a){ return a.id === m[1]; })) ? m[1] : null;
 }
 
+var exitDialog = document.getElementById('exitDialog');
+var exiting = false;
+
+// a sentinel entry so back fires popstate instead of leaving the site
+function guard(){ history.pushState({ guard:1 }, '', location.href); }
+
+function closeExit(){ exitDialog.hidden = true; }
+document.getElementById('exitNo').addEventListener('click', closeExit);
+document.getElementById('exitYes').addEventListener('click', function(){
+  closeExit();
+  exiting = true;
+  history.go(-2);                              // past the sentinel and out
+  setTimeout(function(){ exiting = false; }, 600);
+});
+exitDialog.addEventListener('click', function(e){ if (e.target === exitDialog) closeExit(); });
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && !exitDialog.hidden) closeExit();
+});
+
 window.addEventListener('popstate', function(){
-  var id = appFromHash();
-  if (id){ openApp(id, true); return; }        // forward button, or a shared link
-  if (isDetail()) pageTo(lastTab, true);       // back out of a detail screen
+  if (exiting) return;
+  var st = history.state;
+  if (st && st.app){ openApp(st.app, true); return; }   // forward button
+  if (isDetail()){ pageTo(lastTab, true); guard(); return; }
+  guard();                                     // stay put
+  exitDialog.hidden = false;
+  document.getElementById('exitNo').focus();
 });
 
 /* ---------- finger paging, ViewPager style ---------- */
