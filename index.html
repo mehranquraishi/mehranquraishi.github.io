@@ -320,6 +320,11 @@
     .navbtn.is-active svg{transform:translateY(-1px) scale(1.07)}
 
     /* icons shimmer until the artwork loads, then tilt on hover */
+    .shots img:not([data-loaded]){
+      background:linear-gradient(100deg,#E7EBE5 28%,#F5F7F3 48%,#E7EBE5 68%);
+      background-size:220% 100%;
+      animation:shimmer 1.3s linear infinite;
+    }
     img.tile{
       background:linear-gradient(100deg,#E7EBE5 28%,#F5F7F3 48%,#E7EBE5 68%);
       background-size:220% 100%;
@@ -548,6 +553,21 @@
     font-family:var(--display);
     font-weight:700;font-size:.9375rem;margin:0 0 10px;
   }
+  .shots{
+    display:flex;gap:9px;overflow-x:auto;
+    margin:0 0 20px;
+    padding:0 0 2px;
+    scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .shots::-webkit-scrollbar{display:none}
+  .shots img{
+    height:200px;width:auto;flex:none;border-radius:12px;
+    scroll-snap-align:start;background:#E7EBE5;
+    box-shadow:0 0 0 1px rgba(23,35,28,.10);
+  }
+
   .storestats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:20px}
   .storestats div{background:var(--surface);border-radius:14px;padding:12px 8px;text-align:center}
   .storestats b{
@@ -674,7 +694,7 @@
           <div class="stats">
             <div class="stat"><b data-to="19">19</b><span>Apps built</span></div>
             <div class="stat"><b data-to="14">14</b><span>Live on Play</span></div>
-            <div class="stat"><b data-to="1000000">1.5M+</b><span>Installs</span></div>
+            <div class="stat"><b data-to="1500000">1.5M+</b><span>Installs</span></div>
           </div>
 
           <div class="actions">
@@ -923,6 +943,7 @@ var APPS = [
   { id:'memopad', name:'memo pad for writing', state:'live', featured:true,
     art:'IBjRD8Ile4481Xx4qyVCXiWUEZdLCusQScRNIE8LdtEF00VDHvAOJAVPcGFsBfY4hv1xisC5RCFNIGm6-TRGH4g',
     pkg:'com.memopad.for_.writing.babylon', installs:'500K+', rating:'4.3', reviews:'8.2K reviews',
+    shots:['9hZneBj34krHjbeV38Drsno8FsBheQNhhKye-jDWmkmG6f126xZiXTVw7pva4Oa5pifTPg-Xx_YFC-4ZiVJzMcQ','qo6TWa4PjlM08X_R_bdhx2fgDB3E7iOvA4ltnS58qth6kktlGs2XeNyvXZuxYc2AbAHiMqahw_rzeEq1L2LL0w','rlY2ESJePk_kK1fy2_aNeAKgm1qwt06YWlNFeDsFTtDKN-4vT9Zw6mbfcau09ZVCJLCWAO_MiJhNwUJ9x2Sr0dY','jw7DESyG59VdKhNEVHfCQLnE4EX2n1Q_jK28VQWTKlZ6OuT9J8lzdpn7siwHB8UnqImVByT8E-Y0MgN_Q5es','qb-SN_XohfGDeoJXJSTHTHEx8I8x9Zp2In_o8-zNSb2OFbvYwBPIUY0yXQhOmVwF4tIitAEFGsYjPHpJsdv6iQ'],
     desc:'A note-taking app for quick capture — typed notes, voice notes, checklists and categories, all offline.',
     tags:['Room','Voice recording','Home-screen widgets','AdMob'],
     points:[
@@ -935,6 +956,7 @@ var APPS = [
   { id:'bloodsugar', name:'Blood Sugar & BP Tracker App', state:'live', featured:true,
     art:'IcN-lcAaIS_dj5W9Cwxlz0SOJncmFYTjMLsRCcw8ivO_uT6gpfui1riPdNoTdHUrj1L-0XmbI4A-vfBVV6Ix',
     pkg:'com.blood.sugar.blood.pressureapp', installs:'500K+', rating:'', reviews:'Health & Fitness',
+    shots:['AIO33FEa04gaVNEu6jyUL0F2K-3APv8cgpsE_0_ku-sAKRg3mehFZawC96Q93zsMf0hs03xROJFXntxwiNnE9w','iDcoWYHGK9Lv-q327fFuf5gfu1YcqD4wbMN170HBg7ql-neMb7RLJDKZYH9qY6vzO-HYQ6aSK8YbMGljM-Y1Mg','HGvCJZjkO_8o-BgycP6hKb360G7KFTCnKr8TmOaWbSB80pFMYzYTpCTug_vPPIX6OXK4y_XAcpeJMxbAOhBBKg','RSpNlD2bAD5JCQCWywB-EtKfHihDMh7ROaYoSSsrXuubIouYDzB6pqkh-Ew9WrxRRDfsa7PutxYsjQrHnRUi-1s'],
     desc:'A health logbook for blood pressure, blood sugar and pulse readings, with charts, reports and medication reminders.',
     tags:['Room','Charts','AlarmManager','AdMob'],
     points:[
@@ -947,6 +969,7 @@ var APPS = [
   { id:'memomemo', name:'memo memo', state:'live', featured:false,
     art:'6OCpquSKCtVLqmIQxBSQTjBRxWg6hpnHhT-h-Rr40bz54TlzypGYZMxRMHaiqlw-k2zDg9g62lgRsABh1MNPQA',
     pkg:'com.memo.color.babylon', installs:'100K+', rating:'4.3', reviews:'3.1K reviews',
+    shots:['SY1TjMHYYn0Cdmpk51_wr5HzE8CRPwL7aAYrKKvTrh_IjAELLly0L4bP1BJqEIQS0_4Vtt_3vKuiCpjhMye2vcU','U3RQBxUZ6Y7qan1UReZ_WepXE2fMiyEb9ltTeRYmp-IbXjxXvX0CxaKNie8E2-_yzYPJzfgoQSHkMeZLdEK2pA','4-KIMPrJEXhZmRArjHKzOcVrloZdlPAohdY7CpZZCM3naZ0F_4F9xwV3T80UBXte-yXP-XBJEobKogJThDgwvw','w38VUymg8o1vJjJklC00REKS013TXrWIuATbdOYbNC6-VKmixb6LZ_Yr01cQK-iXaLBLMQTAJ37FHhOn1M_QODU','us1NWu5rWvvZdCZwNDrNxvUT5LdM6GOU8-yHNyNjvo3GZCcED6w0J-nkly1cluq54mCKZP40Vmew4RHe3q3q0Mg'],
     desc:'A lightweight colour-coded notepad with sticky notes, checklists and list or grid views.',
     tags:['Room','Rich text','List/grid views'],
     points:[
@@ -958,6 +981,7 @@ var APPS = [
   { id:'earthmap', name:'Earth Map: 3D Satellite Globe', state:'live', featured:true,
     art:'NTf4wxAAb4xJqhv8syfzJTvkYNjp2vi1f-c8FDt7rgCYH1mWYr88vBzfCEsJkv_zSefVV3qoJbJqlbDTPHpUzFo',
     pkg:'com.worldglobe.world.guide.live.map', installs:'100K+', rating:'3.4', reviews:'90 reviews',
+    shots:['1DFeTTqf_j7Yj_Cp1PIRk1KdzlWfpQnrZjaXjR74ZqeFoXh1v-sdZbQmC0B2S_yMQUcLnxwCCOsa_VJnm5r0jas','7ThMRbV408rO2njn4IA64-fDf9MhQzEXZMYWn0GnuzIAiRjax_17iiWBEymD2W-VEkO5fVN5AqchQ_mXu-RZwg','htr5DAoe5qE9tGcTPNZ_3pqg8ZXSCGqE1n0crXnb8s16aBSPuN7KCbzQGhWcdtHKLWOft_SP-GebKiAOP6F13g4','MRC8vRdqMhVwxgfeQoPhbw3rjf6xI9vGyGMtMwQkE6EFESSaxBs8OW_RFC3nXvbETsjgerJrLgxO2V47qpG2','3GF9mAyMk6mUg06uueMBbrjzsbuZ1CzllkYMmfxxg9HqdoBJ0jEpt0I2bu40KS1FJVw6DLXknipP876OY0wcjQ'],
     desc:'An interactive 3D globe and satellite map for exploring countries, cities and landmarks from the phone.',
     tags:['OpenGL ES','Maps SDK','Sensors','Weather API'],
     points:[
@@ -969,6 +993,7 @@ var APPS = [
   { id:'antitheft', name:'Anti Theft Alarm Find My Phone', state:'live', featured:true,
     art:'5L4E5Lzjb2VOpp4KFKaz2wtxIntRwwzio8kfmdICJRxFpgxKzkJOWEPPWG9IYkE7WOkKRhON-u36reCZO0ZN',
     pkg:'com.antitheft.alarm.find.phone.touch.clap.guard', installs:'100K+', rating:'', reviews:'Lifestyle',
+    shots:['rUxjHqYGY8ErpypsZpHvLdn90biK28fJIG34P8HpB9PftdZZwhVmlynSqQYYhQ91VBn6AeePY26abdnH7CjYUw','wnRP3Js-UpR4yKUuzu-gfLfBwCbnOXGfqa5RVtSE2TRCU-8Hdushh0wwFkc1aCB9T744YwWUNsqXjw9Si4Migg','ZIf7MQTByzhSAEHCosg5J4vIpycQhj5a0KIlcTXa5pk6iUiK_-Ouqny8ybNAO_JTxp-Z3bHrzaFuaPRmEAbg','_8wWVqy0JGzzAxXMh4IxWHtNQBI0WuJQF1S2rk0Llm9QlhNH1lg8dlkh7tdCmgM1IqyNQ4WYaFHWmA8kWw0I8w','szeak8Z2OPNnwAoE7gkaN5hKM02vT0qkOXg1qSRdmJtvyY7zkZQcnCSMtSZCDBp8_MVekgMjnKBVnfZGg0_8RQ'],
     desc:'A phone-security alarm that sounds if the device is moved, unplugged or taken from a pocket, and finds it again on a clap or whistle.',
     tags:['Foreground service','Acoustic triggers','Motion sensors','Camera'],
     points:[
@@ -1061,6 +1086,7 @@ var APPS = [
   { id:'alldocs', name:'All Document Reader PDF Viewer', state:'live', featured:true,
     art:'iFvk0bdJn-RvC-Q1phszzMVJdvpLdtOKv2bED43i-uxoM7k4q4GApXh-hOVMVdUxKp-C5lj6q3RRha9-hkb6f7Q',
     pkg:'com.plab.alldocumentreader.office.viewer.fileconverter', installs:'New', rating:'', reviews:'Productivity',
+    shots:['1mTxs2apUhIdVG2FtXaPohtws5oLHUkd0b-z9Jxu2hQbmRsI8NrYXDW-ytYiQZnXGsu_b-VASXBjf7pwyIxT','5PtxQ_Gbh3OaaKUcVe41QqQxBlfLraso7gTZz0nbBdxMqh7WJvj0iuwINRDKvLF4BR6o1TsYUowDkHwYiRxD','ngbyb-nJWuo-I2XQ9vtbZVFSHPlFk_vYHCzuZnZjyJIACntLy13-9vnpZFvViZJoa3gc6xpdwq-YJYg2qHiHig','KXW5fz1sxU5dzci5uvlcZ86kfRXZHplMr6TE26b6sVkGl0KnvWJtEwHEVPqHftpiN2wyF99t4d3jX7GFzHNm6Q','3I1KkYUM_BFwmg0uUlOiFChRqGEnY65OoxASWVrLKufymTZs2gL7JDx6DSakgyQatsq9DQx2SX9qjjYgA7S-xw'],
     desc:'A document viewer and PDF toolkit — read PDF, Word, Excel and PowerPoint files, scan paperwork, and merge, split or print PDFs.',
     tags:['ML Kit','PdfRenderer','Custom canvas views','Room','AdMob'],
     points:[
@@ -1390,6 +1416,13 @@ function openApp(id){
       (hasReviews ? 'Reviews' : 'Category') + '</span></div></div>';
   }
 
+  if (a.shots && a.shots.length){
+    html += '<div class="shots">' + a.shots.map(function(s){
+      return '<img src="https://play-lh.googleusercontent.com/' + s + '=h420" alt="" ' +
+             'loading="lazy" onload="this.dataset.loaded=1" onerror="this.remove()">';
+    }).join('') + '</div>';
+  }
+
   html += '<h4>What went into it</h4><ul class="bullets">' +
     a.points.map(function(p){ return '<li>' + p + '</li>'; }).join('') + '</ul>' +
     '<h4>Built with</h4><ul class="chips" style="margin-bottom:20px">' +
@@ -1447,6 +1480,7 @@ function endDrag(){
 views.addEventListener('touchstart', function(e){
   if (drag.busy || e.touches.length !== 1) return;
   if (!screenEl.classList.contains('is-ready')) return;
+  if (isDetail()) return;              // detail screens don't page; use the back arrow
   drag.on = true; drag.axis = null; drag.dx = 0;
   drag.x = e.touches[0].clientX;
   drag.y = e.touches[0].clientY;
@@ -1465,15 +1499,10 @@ views.addEventListener('touchmove', function(e){
 
     // work out which pane is coming in behind the finger
     var right = (x - drag.x) < 0;
-    if (isDetail()){
-      drag.target = right ? null : lastTab;
-      drag.dir = 'back';
-    } else {
-      var i = TABS.indexOf(lastTab);
-      var j = right ? i + 1 : i - 1;
-      drag.target = (j >= 0 && j < TABS.length) ? TABS[j] : null;
-      drag.dir = right ? 'fwd' : 'back';
-    }
+    var i = TABS.indexOf(lastTab);
+    var j = right ? i + 1 : i - 1;
+    drag.target = (j >= 0 && j < TABS.length) ? TABS[j] : null;
+    drag.dir = right ? 'fwd' : 'back';
     views.classList.add('is-dragging');
     if (drag.target){
       drag.peek = viewOf(drag.target);
