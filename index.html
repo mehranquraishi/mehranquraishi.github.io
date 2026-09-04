@@ -983,6 +983,40 @@
 </div>
 
 <script>
+/* ---------- back-button guard ----------
+   Runs first, before anything else can fail. A sentinel history entry means
+   the back button fires popstate instead of leaving the site. It is pushed at
+   load AND again on the first interaction, because Chrome discards entries
+   added without user activation. */
+var exiting = false;
+function guard(){
+  try { history.pushState({ guard:1 }, '', location.href); } catch (e) {}
+}
+guard();
+['pointerdown','touchstart','keydown'].forEach(function(ev){
+  document.addEventListener(ev, guard, { once:true, passive:true });
+});
+
+window.addEventListener('popstate', function(){
+  if (exiting) return;
+  var st = history.state;
+  if (st && st.app){ openApp(st.app, true); return; }   // forward button
+
+  guard();                                              // re-arm, stay put
+
+  var dv = document.querySelector('.view[data-view="detail"]');
+  if (dv && dv.classList.contains('is-active')){        // backing out of a detail
+    pageTo(lastTab, true);
+    return;
+  }
+  var d = document.getElementById('exitDialog');        // on a tab: confirm
+  if (d){
+    d.hidden = false;
+    var no = document.getElementById('exitNo');
+    if (no) no.focus();
+  }
+});
+
 var GLYPHS = {
   forge:'<circle cx="9" cy="9" r="6"/><path d="M3 9h12M9 3c2.5 3 2.5 9 0 12"/><rect x="13" y="12" width="8" height="9" rx="2" fill="currentColor" stroke="none"/>'
 };
@@ -1530,20 +1564,6 @@ function appFromHash(){
 }
 
 var exitDialog = document.getElementById('exitDialog');
-var exiting = false;
-
-// A sentinel entry so back fires popstate instead of leaving the site.
-// Chrome skips history entries pushed without user activation, so this is
-// armed on the first real interaction rather than on a timer.
-var guarded = false;
-function guard(){
-  try { history.pushState({ guard:1 }, '', location.href); guarded = true; }
-  catch (err) { guarded = false; }             // file:// and the like
-}
-function armGuard(){ if (!guarded) guard(); }
-['pointerdown','keydown','touchstart'].forEach(function(ev){
-  document.addEventListener(ev, armGuard, { once:true, passive:true });
-});
 
 function closeExit(){ exitDialog.hidden = true; }
 document.getElementById('exitNo').addEventListener('click', closeExit);
@@ -1556,16 +1576,6 @@ document.getElementById('exitYes').addEventListener('click', function(){
 exitDialog.addEventListener('click', function(e){ if (e.target === exitDialog) closeExit(); });
 document.addEventListener('keydown', function(e){
   if (e.key === 'Escape' && !exitDialog.hidden) closeExit();
-});
-
-window.addEventListener('popstate', function(){
-  if (exiting) return;
-  var st = history.state;
-  if (st && st.app){ openApp(st.app, true); return; }   // forward button
-  if (isDetail()){ pageTo(lastTab, true); guard(); return; }
-  guard();                                     // stay put
-  exitDialog.hidden = false;
-  document.getElementById('exitNo').focus();
 });
 
 /* ---------- finger paging, ViewPager style ---------- */
