@@ -1363,7 +1363,6 @@ setTimeout(function(){
   moveIndicator();
   reveal();
 
-  guard();
   var deep = appFromHash();                // support links like /#app/alldocs
   if (deep) openApp(deep, true);
 }, reduced ? 0 : 1200);
@@ -1533,8 +1532,18 @@ function appFromHash(){
 var exitDialog = document.getElementById('exitDialog');
 var exiting = false;
 
-// a sentinel entry so back fires popstate instead of leaving the site
-function guard(){ history.pushState({ guard:1 }, '', location.href); }
+// A sentinel entry so back fires popstate instead of leaving the site.
+// Chrome skips history entries pushed without user activation, so this is
+// armed on the first real interaction rather than on a timer.
+var guarded = false;
+function guard(){
+  try { history.pushState({ guard:1 }, '', location.href); guarded = true; }
+  catch (err) { guarded = false; }             // file:// and the like
+}
+function armGuard(){ if (!guarded) guard(); }
+['pointerdown','keydown','touchstart'].forEach(function(ev){
+  document.addEventListener(ev, armGuard, { once:true, passive:true });
+});
 
 function closeExit(){ exitDialog.hidden = true; }
 document.getElementById('exitNo').addEventListener('click', closeExit);
