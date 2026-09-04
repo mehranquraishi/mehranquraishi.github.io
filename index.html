@@ -1317,6 +1317,9 @@ setTimeout(function(){
   document.querySelectorAll('.stat b[data-to]').forEach(countUp);
   moveIndicator();
   reveal();
+
+  var deep = appFromHash();                // support links like /#app/alldocs
+  if (deep) openApp(deep, true);
 }, reduced ? 0 : 1200);
 
 /* ---- the phone leans toward the cursor on desktop ---- */
@@ -1411,8 +1414,10 @@ function show(name, dir, skipAnim){
   requestAnimationFrame(function(){ reveal(); moveIndicator(); });
 }
 
-function openApp(id){
+function openApp(id, fromHistory){
   var a = APPS.filter(function(x){ return x.id === id; })[0];
+  if (!a) return;
+  if (!fromHistory) history.pushState({ app:id }, '', '#app/' + id);
 
   var html = '<div class="detail-head">' + tile(a, 152) +
     '<div><h3>' + a.name + '</h3><span class="status ' + pill(a) + '">' + label(a) + '</span></div></div>' +
@@ -1468,7 +1473,22 @@ document.addEventListener('click', function(e){
   if (appBtn){ openApp(appBtn.dataset.app); }
 });
 
-back.addEventListener('click', function(){ show(lastTab, 'back'); });
+back.addEventListener('click', function(){
+  if (history.state && history.state.app) history.back();
+  else show(lastTab, 'back');
+});
+
+/* ---------- back button, detail screens only ---------- */
+function appFromHash(){
+  var m = (location.hash || '').match(/^#app\/(\w+)$/);
+  return (m && APPS.some(function(a){ return a.id === m[1]; })) ? m[1] : null;
+}
+
+window.addEventListener('popstate', function(){
+  var id = appFromHash();
+  if (id){ openApp(id, true); return; }        // forward button, or a shared link
+  if (isDetail()) pageTo(lastTab, true);       // back out of a detail screen
+});
 
 /* ---------- finger paging, ViewPager style ---------- */
 var drag = { on:false, busy:false, x:0, y:0, dx:0, axis:null, w:0, peek:null, target:null, dir:null };
@@ -1608,7 +1628,7 @@ function setChrome(name){
 }
 
 /* tapping a tab runs the same slide a finger swipe does: both panes move */
-function pageTo(name){
+function pageTo(name, fromHistory){
   if (drag.busy) return;
   var cur  = document.querySelector('.view.is-active');
   var next = viewOf(name);
