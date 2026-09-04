@@ -118,6 +118,7 @@
     padding:24px 24px 12px;
     box-shadow:0 26px 54px -20px rgba(0,0,0,.55);
   }
+  .dialog:focus,.dialog:focus-visible{outline:none}
   .dialog h3{
     font-family:var(--display);font-weight:700;
     font-size:1.1875rem;letter-spacing:-.02em;margin:0 0 9px;
@@ -964,7 +965,7 @@
       </nav>
 
       <div class="dialog-scrim" id="exitDialog" hidden>
-        <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="exitTitle">
+        <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="exitTitle" tabindex="-1">
           <h3 id="exitTitle">Exit portfolio?</h3>
           <p>Are you sure you want to leave?</p>
           <div class="dialog-actions">
@@ -999,6 +1000,15 @@ guard();
   document.addEventListener(ev, guard, { once:true, passive:true });
 });
 
+// Returning via forward or back restores the page from the browser's cache
+// without re-running this script, so the counters are stale. Reset and re-arm.
+window.addEventListener('pageshow', function(e){
+  if (!e.persisted) return;
+  exiting = false;
+  pushes  = 0;
+  guard();
+});
+
 window.addEventListener('popstate', function(){
   if (exiting) return;
   if (pushes > 0) pushes--;         // the back press consumed one
@@ -1015,8 +1025,8 @@ window.addEventListener('popstate', function(){
   var d = document.getElementById('exitDialog');        // on a tab: confirm
   if (d){
     d.hidden = false;
-    var no = document.getElementById('exitNo');
-    if (no) no.focus();
+    var card = d.querySelector('.dialog');             // focus the card, not a button,
+    if (card) card.focus();                            // so no ring lands on No
   }
 });
 
@@ -1582,6 +1592,9 @@ document.getElementById('exitYes').addEventListener('click', function(){
     window.close();
     setTimeout(function(){ location.replace('about:blank'); }, 150);
   }, 400);
+
+  // if we're still here a moment later, the exit failed — go back to normal
+  setTimeout(function(){ exiting = false; }, 1500);
 });
 exitDialog.addEventListener('click', function(e){ if (e.target === exitDialog) closeExit(); });
 document.addEventListener('keydown', function(e){
