@@ -3,7 +3,7 @@
 **Android Developer** — Kotlin, XML, MVVM. I build Android apps end to end: architecture,
 interface, monetisation, and the Play Store release that follows.
 
-Two years in, with 14 apps published on Google Play and over 1.3M combined installs.
+Two years in, with 14 apps published on Google Play and 1.5M+ combined installs.
 
 ### [View the portfolio →](https://mehranquraishi.github.io)
 
