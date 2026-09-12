@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Downloads the 14 Google Play icons into assets/icons/ so the site
+# Downloads the 15 Google Play icons into assets/icons/ so the site
 # serves them from your own domain instead of Google's CDN.
 # Run once from the folder that contains index.html:   bash download-icons.sh
 set -e
@@ -19,7 +19,7 @@ curl -sSfL -o "assets/icons/heartrate.png" "https://play-lh.googleusercontent.co
 echo "  saved assets/icons/heartrate.png"
 curl -sSfL -o "assets/icons/plantid.png" "https://play-lh.googleusercontent.com/MPAzgyjDE6NwOYl9mgTN3uF6kJnlyO6B-ZSfMCWW4QW8BC0T_XW8yqguX_QJOv28pG23SkOrLIXkeFxarDtu5Aw=s256"
 echo "  saved assets/icons/plantid.png"
-curl -sSfL -o "assets/icons/gps.png" "https://play-lh.googleusercontent.com/-nJ9fNoPQFPskWH1lr_B6KEz7eZINR2SGr1R76J7rSlUxC4oqa_bUqFSrZmx-Yk44ndtyTsvYDDTX_tu_DPMiqs=s256"
+curl -sSfL -o "assets/icons/gps.png" "https://play-lh.googleusercontent.com/F-CXJwwkGNP7GNNy5JGeOOqN87t9beYnnvtkBNTCZP3CGm5dgEwaKOVONJc7zftoUBmq7c_sNIoIm5wxlNW8WA=s256"
 echo "  saved assets/icons/gps.png"
 curl -sSfL -o "assets/icons/notebook.png" "https://play-lh.googleusercontent.com/BVS8YvNLHKy14zC6dSkHjCUI8mmSp5ZNk-Sc_Zl4xHQt6yRoVUECJv_tUUy_cJCpMaH2GD-rSg5FR3SobyG6og=s256"
 echo "  saved assets/icons/notebook.png"
@@ -33,6 +33,8 @@ curl -sSfL -o "assets/icons/alldocs.png" "https://play-lh.googleusercontent.com/
 echo "  saved assets/icons/alldocs.png"
 curl -sSfL -o "assets/icons/pdftoolkit.png" "https://play-lh.googleusercontent.com/9fUTYXxEPWfz-ejmkGVelQ9o5PEwTnYHKZfoo-rjeFnbX5eUHA0w2vRCAmzTevn3d1J3a-x6modTNpt9Eqvdqw=s256"
 echo "  saved assets/icons/pdftoolkit.png"
+curl -sSfL -o "assets/icons/arsketch.png" "https://play-lh.googleusercontent.com/3ojSS4nEFKOkQ3v4I70kUbR9M9v0CCA_b4-UmAjbO60gnZVn6gFugYsuWSENWwqLXdlNpg5jX96Xpf11UXIZx4A=s256"
+echo "  saved assets/icons/arsketch.png"
 
 echo
-echo "Done - 14 icons saved."
+echo "Done - 15 icons saved."
